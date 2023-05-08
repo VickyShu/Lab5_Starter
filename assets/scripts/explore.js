@@ -6,16 +6,10 @@ function init() {
   // TODO
   const synth = window.speechSynthesis;
 
-  const inputForm = document.querySelector("form");
-  const inputTxt = document.querySelector(".txt");
   const voiceSelect = document.querySelector("select");
-  const pitch = document.querySelector("#pitch");
-  const pitchValue = document.querySelector(".pitch-value");
-  const rate = document.querySelector("#rate");
-  const rateValue = document.querySelector(".rate-value");
   const talk = document.querySelector("button");
-  const voice = document.getElementById("voice-select");
   const textToSpeak = document.getElementById("text-to-speak");
+  const smile = document.querySelector("img");
 
   let voices = [];
 
@@ -41,22 +35,22 @@ function init() {
     speechSynthesis.onvoiceschanged = populateVoiceList;
   }
 
-  inputForm.onsubmit = (event) => {
-    event.preventDefault();
+  talk.addEventListener('click', () => {
+    const toSpeak = new SpeechSynthesisUtterance(textToSpeak.value);
+    const selectedVoice = voiceSelect.selectedOptions[0].getAttribute('data-name');
+  
+    const voices = synth.getVoices();
+    const chosenVoice = voices.find((voice) => voice.name === selectedVoice);
+    toSpeak.voice = chosenVoice;
+  
+    synth.speak(toSpeak);
+    
+    toSpeak.addEventListener('start', () => {
+      smile.src = "assets/images/smiling-open.png";
+    });
 
-    const utterThis = new SpeechSynthesisUtterance(inputTxt.value);
-    const selectedOption =
-      voiceSelect.selectedOptions[0].getAttribute("data-name");
-    for (let i = 0; i < voices.length; i++) {
-      if (voices[i].name === selectedOption) {
-        utterThis.voice = voices[i];
-      }
-    }
-    utterThis.pitch = pitch.value;
-    utterThis.rate = rate.value;
-    synth.speak(utterThis);
-
-    inputTxt.blur();
-  };
-
+    toSpeak.addEventListener('end', () => {
+      smile.src = "assets/images/smiling.png";
+    });
+  });
 }
